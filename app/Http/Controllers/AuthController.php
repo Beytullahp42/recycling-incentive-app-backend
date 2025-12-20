@@ -138,6 +138,12 @@ class AuthController extends Controller
 
         $user = $request->user();
 
+        if ($user->role === 'admin') {
+            throw ValidationException::withMessages([
+                'password' => ['You can not delete your account. You are the only admin. Who else is going to manage the system?'],
+            ]);
+        }
+
         if (!Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'password' => ['The provided password does not match your current password.'],

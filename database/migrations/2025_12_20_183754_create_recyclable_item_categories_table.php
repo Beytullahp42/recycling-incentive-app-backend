@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recyclable_items', function (Blueprint $table) {
+        Schema::create('recyclable_item_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->integer('value')->nullable();
-            $table->string('barcode')->unique();
-            $table->foreignId('category_id')->nullable()->constrained('recyclable_item_categories')->nullOnDelete();
+            $table->integer('value');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('recyclable_items');
+        Schema::dropIfExists('recyclable_item_categories');
     }
 };

@@ -38,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/recyclable-items/{id}', [\App\Http\Controllers\RecyclableItemController::class, 'update']);
         Route::delete('/recyclable-items/{id}', [\App\Http\Controllers\RecyclableItemController::class, 'destroy']);
 
+        Route::post('/recyclable-item-categories', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'store']);
+        Route::put('/recyclable-item-categories/{id}', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'update']);
+        Route::delete('/recyclable-item-categories/{id}', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'destroy']);
+
         Route::post('/recycling-bins', [\App\Http\Controllers\RecyclingBinController::class, 'store']);
         Route::put('/recycling-bins/{id}', [\App\Http\Controllers\RecyclingBinController::class, 'update']);
         Route::delete('/recycling-bins/{id}', [\App\Http\Controllers\RecyclingBinController::class, 'destroy']);
@@ -46,6 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/recyclable-items', [\App\Http\Controllers\RecyclableItemController::class, 'index']);
 Route::get('/recyclable-items/{id}', [\App\Http\Controllers\RecyclableItemController::class, 'show']);
+
+Route::get('/recyclable-item-categories', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'index']);
+Route::get('/recyclable-item-categories/{id}', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'show']);
 
 Route::get('/recycling-bins', [\App\Http\Controllers\RecyclingBinController::class, 'index']);
 Route::get('/recycling-bins/{id}', [\App\Http\Controllers\RecyclingBinController::class, 'show']);

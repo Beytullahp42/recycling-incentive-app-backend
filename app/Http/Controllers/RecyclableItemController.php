@@ -12,7 +12,7 @@ class RecyclableItemController extends Controller
      */
     public function index()
     {
-        return response()->json(RecyclableItem::all(), 200);
+        return response()->json(RecyclableItem::with('category')->get(), 200);
     }
 
     /**
@@ -25,9 +25,11 @@ class RecyclableItemController extends Controller
             'description' => 'nullable|string',
             'value' => 'nullable|integer',
             'barcode' => 'required|string|unique:recyclable_items,barcode',
+            'category_id' => 'nullable|exists:recyclable_item_categories,id',
         ]);
 
         $item = RecyclableItem::create($validated);
+        $item->load('category');
 
         return response()->json($item, 201);
     }
@@ -37,7 +39,7 @@ class RecyclableItemController extends Controller
      */
     public function show($id)
     {
-        $item = RecyclableItem::find($id);
+        $item = RecyclableItem::with('category')->find($id);
 
         if (! $item) {
             return response()->json(['message' => 'Item not found.'], 404);
@@ -62,9 +64,11 @@ class RecyclableItemController extends Controller
             'description' => 'sometimes|nullable|string',
             'value' => 'sometimes|nullable|integer',
             'barcode' => 'sometimes|string|unique:recyclable_items,barcode,' . $id,
+            'category_id' => 'sometimes|nullable|exists:recyclable_item_categories,id',
         ]);
 
         $item->update($validated);
+        $item->load('category');
 
         return response()->json($item, 200);
     }

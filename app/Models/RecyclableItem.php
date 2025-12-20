@@ -13,7 +13,13 @@ class RecyclableItem extends Model
         'description',
         'value',
         'barcode',
+        'category_id',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(RecyclableItemCategory::class, 'category_id');
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -25,14 +31,5 @@ class RecyclableItem extends Model
         return [
             'value' => 'integer',
         ];
-    }
-
-    protected static function booted()
-    {
-        static::creating(function ($item) {
-            if (is_null($item->value)) {
-                $item->value = 5; // Default value
-            }
-        });
     }
 }
