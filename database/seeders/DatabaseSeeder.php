@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\RecyclableItemCategory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -24,6 +25,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'user@recycling.com',
             'password' => bcrypt('yawabicim'),
             'role' => 'user',
+        ]);
+        RecyclableItemCategory::create([
+            'name' => 'Uncategorized',
+            'value' => 100,
         ]);
     }
 }

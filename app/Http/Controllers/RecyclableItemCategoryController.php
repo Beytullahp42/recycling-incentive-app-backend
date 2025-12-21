@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\RecyclableItemCategory;
+use App\Models\RecyclableItem;
 use Illuminate\Http\Request;
 
 class RecyclableItemCategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return response()->json(RecyclableItemCategory::all(), 200);
@@ -18,7 +16,7 @@ class RecyclableItemCategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:recyclable_item_categories,name',
             'value' => 'required|integer|min:0',
         ]);
 
@@ -47,7 +45,7 @@ class RecyclableItemCategoryController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255|unique:recyclable_item_categories,name,' . $id,
             'value' => 'sometimes|integer|min:0',
         ]);
 
@@ -63,6 +61,21 @@ class RecyclableItemCategoryController extends Controller
         if (! $category) {
             return response()->json(['message' => 'Category not found.'], 404);
         }
+
+        // The Model's 'booted' method will protect the 'Uncategorized' category here but we can double check
+        if ($category->name === 'Uncategorized') {
+            return response()->json(['message' => 'The Uncategorized category cannot be deleted.'], 403);
+        }
+
+        // Find the 'Uncategorized' category to move items to
+        $uncategorized = RecyclableItemCategory::where('name', 'Uncategorized')->first();
+
+        if (!$uncategorized) {
+            return response()->json(['message' => 'Critical Error: Uncategorized category not found. Cannot safely delete.'], 500);
+        }
+
+        // Reassign all items belonging to this category to 'Uncategorized'
+        RecyclableItem::where('category_id', $category->id)->update(['category_id' => $uncategorized->id]);
 
         $category->delete();
 

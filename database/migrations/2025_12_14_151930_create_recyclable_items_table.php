@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->integer('value')->nullable();
+            $table->integer('manual_value')->nullable();
             $table->string('barcode')->unique();
-            $table->foreignId('category_id')->nullable()->constrained('recyclable_item_categories')->nullOnDelete();
+            $table->foreignId('category_id')->constrained('recyclable_item_categories');
             $table->timestamps();
             $table->softDeletes();
         });
