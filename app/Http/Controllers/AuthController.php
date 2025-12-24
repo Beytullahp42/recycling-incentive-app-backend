@@ -25,42 +25,9 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'access_token' => $token,
+            'token' => $token,
             'token_type' => 'Bearer',
         ], 201);
-    }
-
-    public function adminLogin(Request $request)
-    {
-        $validated = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
-        if (Auth::attempt($validated)) {
-            $request->session()->regenerate();
-
-            if (Auth::user()->role !== 'admin') {
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-
-            return response()->json(['message' => 'Logged in successfully', 'user' => Auth::user()]);
-        }
-
-        return response()->json(['message' => 'Invalid login details'], 401);
-    }
-
-    public function adminLogout(Request $request)
-    {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return response()->json(['message' => 'Logged out successfully']);
     }
 
     public function login(Request $request)
@@ -76,7 +43,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'access_token' => $token,
+            'token' => $token,
             'token_type' => 'Bearer',
         ]);
     }
@@ -155,5 +122,38 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Account deleted successfully'
         ]);
+    }
+
+    public function adminLogin(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($validated)) {
+            $request->session()->regenerate();
+
+            if (Auth::user()->role !== 'admin') {
+                Auth::guard('web')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            return response()->json(['message' => 'Logged in successfully', 'user' => Auth::user()]);
+        }
+
+        return response()->json(['message' => 'Invalid login details'], 401);
+    }
+
+    public function adminLogout(Request $request)
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }
