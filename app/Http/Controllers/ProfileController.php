@@ -62,11 +62,9 @@ class ProfileController extends Controller
     {
         $profile = $request->user()->profile;
 
-        if (! $profile) {
-            return response()->json(['message' => 'Profile not found.'], 404);
-        }
-
-        return response()->json($profile, 200);
+        return response()->json([
+            'profile' => $profile,
+        ], 200);
     }
 
     /**

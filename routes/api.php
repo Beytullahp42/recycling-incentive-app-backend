@@ -27,6 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile/{id}', [\App\Http\Controllers\ProfileController::class, 'show']);
     Route::get('/profile/username/{username}', [\App\Http\Controllers\ProfileController::class, 'showByUsername']);
 
+    Route::post('/start-session', [\App\Http\Controllers\TransactionController::class, 'startSession']);
+
     Route::middleware('isAdmin')->group(function () {
         Route::get('/admin/ping', function () {
             return response()->json(['message' => 'Pong']);
