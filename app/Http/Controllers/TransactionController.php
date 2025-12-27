@@ -130,6 +130,8 @@ class TransactionController extends Controller
             }
         }
 
+        //selamun aleyküm
+
         Transaction::create([
             'user_id'              => $cachedSession['user_id'],
             'recycling_session_id' => $cachedSession['db_id'],
