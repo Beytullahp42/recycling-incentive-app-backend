@@ -14,6 +14,10 @@ class RecyclableItemCategory extends Model
         'value',
     ];
 
+    protected $casts = [
+        'value' => 'integer',
+    ];
+
     public function recyclableItems()
     {
         return $this->hasMany(RecyclableItem::class, 'category_id');

@@ -23,13 +23,10 @@ class RecyclingBin extends Model
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'latitude' => 'float',
-            'longitude' => 'float',
-        ];
-    }
+    protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float',
+    ];
 
     protected static function booted()
     {

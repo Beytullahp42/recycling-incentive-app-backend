@@ -13,6 +13,7 @@ class Profile extends Model
         'username',
         'bio',
         'birth_date',
+        'points', // <--- Added this
     ];
 
     /**
@@ -25,6 +26,7 @@ class Profile extends Model
         return [
             'birth_date' => 'date',
             'user_id' => 'integer',
+            'points' => 'integer', // <--- Added this
         ];
     }
 

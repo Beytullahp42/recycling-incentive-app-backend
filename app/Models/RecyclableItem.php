@@ -18,19 +18,16 @@ class RecyclableItem extends Model
         'category_id',
     ];
 
+    protected $casts = [
+        'manual_value' => 'integer',
+    ];
+
     // This ensures 'current_value' is always in the JSON response
     protected $appends = ['current_value'];
 
     public function category()
     {
         return $this->belongsTo(RecyclableItemCategory::class, 'category_id');
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'manual_value' => 'integer',
-        ];
     }
 
     /*

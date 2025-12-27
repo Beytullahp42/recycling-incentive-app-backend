@@ -27,6 +27,7 @@ class ProfileController extends Controller
             'birth_date' => 'required|date',
         ]);
 
+        // Points will default to 0 via the database default value
         $profile = $user->profile()->create($validated);
 
         return response()->json($profile, 201);
@@ -35,6 +36,7 @@ class ProfileController extends Controller
     /**
      * Update the authenticated user's profile.
      * Only username and bio are updatable.
+     * STRICTLY PREVENT POINTS UPDATE HERE.
      */
     public function update(Request $request)
     {
@@ -48,6 +50,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'username' => 'sometimes|string|max:255|unique:profiles,username,' . $profile->id,
             'bio' => 'sometimes|nullable|string',
+            // Do NOT add points here. Users cannot edit their own points.
         ]);
 
         $profile->update($validated);
@@ -62,6 +65,7 @@ class ProfileController extends Controller
     {
         $profile = $request->user()->profile;
 
+        // This will now include "points": 0 (or whatever value) automatically
         return response()->json([
             'profile' => $profile,
         ], 200);
@@ -97,6 +101,7 @@ class ProfileController extends Controller
 
     /**
      * Update any profile field (Admin only).
+     * ADDED: Ability to update points manually.
      */
     public function adminUpdate(Request $request, $username)
     {
@@ -112,6 +117,7 @@ class ProfileController extends Controller
             'username' => 'sometimes|string|max:255|unique:profiles,username,' . $profile->id,
             'bio' => 'sometimes|nullable|string',
             'birth_date' => 'sometimes|date',
+            'points' => 'sometimes|integer|min:0', // <--- Allowed for Admins
         ]);
 
         $profile->update($validated);
