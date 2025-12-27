@@ -133,6 +133,7 @@ class TransactionController extends Controller
         Transaction::create([
             'user_id'              => $cachedSession['user_id'],
             'recycling_session_id' => $cachedSession['db_id'],
+            'recyclable_item_id'   => $item->id,
             'barcode'              => $request->barcode,
             'points_awarded'       => $snapshotPoints,
             'status'               => $status,
