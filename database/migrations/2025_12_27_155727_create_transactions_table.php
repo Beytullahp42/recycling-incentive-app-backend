@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\TransactionStatus;
 
 return new class extends Migration
 {
@@ -18,8 +19,7 @@ return new class extends Migration
             $table->foreignId('recyclable_item_id')->constrained('recyclable_items')->cascadeOnDelete();
             $table->string('barcode');
             $table->integer('points_awarded');
-            $table->enum('status', ['accepted', 'flagged', 'rejected']);
-
+            $table->enum('status', array_column(TransactionStatus::cases(), 'value'))->default(TransactionStatus::ACCEPTED->value);
             $table->timestamps();
         });
     }

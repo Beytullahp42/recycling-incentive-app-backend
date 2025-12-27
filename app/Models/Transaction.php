@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TransactionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +19,10 @@ class Transaction extends Model
         'status',
     ];
 
+    protected $casts = [
+        'status' => TransactionStatus::class,
+    ];
+
     /**
      * Get the session this transaction belongs to.
      */
@@ -32,5 +37,10 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(RecyclableItem::class, 'recyclable_item_id');
     }
 }

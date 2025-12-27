@@ -10,6 +10,7 @@ use App\Models\RecyclingSession;
 use App\Models\RecyclableItem;
 use App\Models\Profile;
 use App\Models\Transaction;
+use App\Enums\TransactionStatus;
 
 class TransactionController extends Controller
 {
@@ -116,11 +117,11 @@ class TransactionController extends Controller
             ->count();
 
         $snapshotPoints = $item->current_value;
-        $status = 'approved';
+        $status = TransactionStatus::ACCEPTED;
 
         if ($existingCount > 0) {
             if ($cachedSession['has_proof']) {
-                $status = 'flagged';
+                $status = TransactionStatus::FLAGGED;
             } else {
                 return response()->json([
                     'success' => false,
@@ -141,7 +142,7 @@ class TransactionController extends Controller
             'status'               => $status,
         ]);
 
-        if ($status === 'approved') {
+        if ($status === TransactionStatus::ACCEPTED) {
             // Now this works because profile_id is in the cache!
             Profile::where('id', $cachedSession['profile_id'])
                 ->increment('points', $snapshotPoints);
@@ -149,10 +150,10 @@ class TransactionController extends Controller
 
         return response()->json([
             'success'        => true,
-            'points_awarded' => ($status === 'approved') ? $snapshotPoints : 0,
+            'points_awarded' => ($status === TransactionStatus::ACCEPTED) ? $snapshotPoints : 0,
             'item_name'      => $item->name,
             'status'         => $status,
-            'message'        => ($status === 'flagged') ? 'Item saved for review.' : 'Points added!',
+            'message'        => ($status === TransactionStatus::FLAGGED) ? 'Item saved for review.' : 'Points added!',
         ]);
     }
 
@@ -180,7 +181,7 @@ class TransactionController extends Controller
 
         $session->update([
             'proof_photo_path' => $path,
-            'status'           => 'flagged',
+            'status'           => TransactionStatus::FLAGGED,
         ]);
 
         // CRITICAL: Update Cache so submitItem knows proof exists
