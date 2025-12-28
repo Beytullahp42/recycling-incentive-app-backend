@@ -11,6 +11,7 @@ use App\Models\RecyclableItem;
 use App\Models\Profile;
 use App\Models\Transaction;
 use App\Enums\TransactionStatus;
+use App\Enums\SessionLifecycle;
 
 class TransactionController extends Controller
 {
@@ -48,21 +49,26 @@ class TransactionController extends Controller
             $token = Str::random(32);
         } while (RecyclingSession::where('session_token', $token)->exists());
 
+        // --- NEW LIFECYCLE LOGIC ---
         $session = RecyclingSession::create([
             'user_id'          => $request->user()->id,
             'recycling_bin_id' => $bin->id,
             'session_token'    => $token,
             'started_at'       => now(),
             'expires_at'       => now()->addSeconds($serverDuration),
-            'status'           => 'active',
+
+            // Set initial statuses
+            'lifecycle_status' => SessionLifecycle::ACTIVE,
+            'audit_status'     => TransactionStatus::ACCEPTED,
+
             'proof_photo_path' => null,
+            'ended_at'         => null,
         ]);
 
-        // --- FIX IS HERE ---
         Cache::put("recycle_session_{$token}", [
             'db_id'      => $session->id,
             'user_id'    => $request->user()->id,
-            'profile_id' => $request->user()->profile->id, // <--- ADDED THIS
+            'profile_id' => $request->user()->profile->id,
             'bin_id'     => $bin->id,
             'has_proof'  => false,
         ], $serverDuration);
@@ -84,9 +90,10 @@ class TransactionController extends Controller
         $token = $request->session_token;
         $cachedSession = Cache::get("recycle_session_{$token}");
 
-        // Fallback if cache is missing
+        // Fallback if cache is missing (server restart or memory clear)
         if (! $cachedSession) {
             $session = RecyclingSession::where('session_token', $token)
+                ->where('lifecycle_status', SessionLifecycle::ACTIVE) // Only active sessions
                 ->where('expires_at', '>', now())
                 ->first();
 
@@ -97,7 +104,7 @@ class TransactionController extends Controller
             $cachedSession = [
                 'db_id'      => $session->id,
                 'user_id'    => $session->user_id,
-                'profile_id' => $session->user->profile->id, // Fallback also gets it
+                'profile_id' => $session->user->profile->id,
                 'bin_id'     => $session->recycling_bin_id,
                 'has_proof'  => ! is_null($session->proof_photo_path),
             ];
@@ -112,6 +119,7 @@ class TransactionController extends Controller
             return response()->json(['success' => false, 'message' => 'Unknown item.'], 404);
         }
 
+        // Check for duplicates in THIS session
         $existingCount = Transaction::where('recycling_session_id', $cachedSession['db_id'])
             ->where('barcode', $request->barcode)
             ->count();
@@ -121,8 +129,10 @@ class TransactionController extends Controller
 
         if ($existingCount > 0) {
             if ($cachedSession['has_proof']) {
+                // If they already uploaded a photo, we flag it but allow it
                 $status = TransactionStatus::FLAGGED;
             } else {
+                // Stop them and ask for a photo
                 return response()->json([
                     'success' => false,
                     'message' => 'Duplicate item detected! Please take a group photo.',
@@ -130,8 +140,6 @@ class TransactionController extends Controller
                 ], 422);
             }
         }
-
-        //selamun aleyküm
 
         Transaction::create([
             'user_id'              => $cachedSession['user_id'],
@@ -142,8 +150,8 @@ class TransactionController extends Controller
             'status'               => $status,
         ]);
 
+        // Only give points immediately if it is NOT flagged
         if ($status === TransactionStatus::ACCEPTED) {
-            // Now this works because profile_id is in the cache!
             Profile::where('id', $cachedSession['profile_id'])
                 ->increment('points', $snapshotPoints);
         }
@@ -158,7 +166,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * Upload Proof - You need this for the flow to work!
+     * Upload Proof - Updates AUDIT STATUS only
      */
     public function uploadProof(Request $request)
     {
@@ -179,9 +187,10 @@ class TransactionController extends Controller
 
         $path = $request->file('proof_photo')->store('proofs', 'public');
 
+        // Update the audit status to FLAGGED (Session remains ACTIVE)
         $session->update([
             'proof_photo_path' => $path,
-            'status'           => TransactionStatus::FLAGGED,
+            'audit_status'     => TransactionStatus::FLAGGED,
         ]);
 
         // CRITICAL: Update Cache so submitItem knows proof exists
@@ -197,6 +206,26 @@ class TransactionController extends Controller
             'success' => true,
             'message' => 'Proof uploaded successfully. Unlimited scanning unlocked.',
         ]);
+    }
+
+    /**
+     * End Session Manually
+     */
+    public function endSession(Request $request)
+    {
+        $request->validate(['session_token' => 'required|string']);
+        $token = $request->session_token;
+
+        // 1. Kill the Cache immediately
+        Cache::forget("recycle_session_{$token}");
+
+        // 2. Mark DB as closed
+        RecyclingSession::where('session_token', $token)->update([
+            'lifecycle_status' => SessionLifecycle::CLOSED,
+            'ended_at'         => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Session ended.']);
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)

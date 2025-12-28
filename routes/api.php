@@ -4,6 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecyclableItemController;
+use App\Http\Controllers\RecyclableItemCategoryController;
+use App\Http\Controllers\RecyclingBinController;
 
 Route::get('/ping', function () {
     return response()->json(['message' => 'Pong']);
@@ -21,42 +26,43 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/email', [AuthController::class, 'updateEmail']);
     Route::delete('/account', [AuthController::class, 'deleteAccount']);
 
-    Route::post('/profile', [\App\Http\Controllers\ProfileController::class, 'store']);
-    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update']);
-    Route::get('/profile/me', [\App\Http\Controllers\ProfileController::class, 'me']);
-    Route::get('/profile/{id}', [\App\Http\Controllers\ProfileController::class, 'show']);
-    Route::get('/profile/username/{username}', [\App\Http\Controllers\ProfileController::class, 'showByUsername']);
+    Route::post('/profile', [ProfileController::class, 'store']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::get('/profile/me', [ProfileController::class, 'me']);
+    Route::get('/profile/{id}', [ProfileController::class, 'show']);
+    Route::get('/profile/username/{username}', [ProfileController::class, 'showByUsername']);
 
-    Route::post('/start-session', [\App\Http\Controllers\TransactionController::class, 'startSession']);
-    Route::post('/submit-item', [\App\Http\Controllers\TransactionController::class, 'submitItem']);
-    Route::post('/upload-proof', [\App\Http\Controllers\TransactionController::class, 'uploadProof']);
+    Route::post('/start-session', [TransactionController::class, 'startSession']);
+    Route::post('/submit-item', [TransactionController::class, 'submitItem']);
+    Route::post('/upload-proof', [TransactionController::class, 'uploadProof']);
+    Route::post('/end-session', [TransactionController::class, 'endSession']);
 
     Route::middleware('isAdmin')->group(function () {
         Route::get('/admin/ping', function () {
             return response()->json(['message' => 'Pong']);
         });
         Route::post('/admin/logout', [AuthController::class, 'adminLogout']);
-        Route::put('/admin/profile/{username}', [\App\Http\Controllers\ProfileController::class, 'adminUpdate']);
+        Route::put('/admin/profile/{username}', [ProfileController::class, 'adminUpdate']);
 
-        Route::post('/recyclable-items', [\App\Http\Controllers\RecyclableItemController::class, 'store']);
-        Route::put('/recyclable-items/{id}', [\App\Http\Controllers\RecyclableItemController::class, 'update']);
-        Route::delete('/recyclable-items/{id}', [\App\Http\Controllers\RecyclableItemController::class, 'destroy']);
+        Route::post('/recyclable-items', [RecyclableItemController::class, 'store']);
+        Route::put('/recyclable-items/{id}', [RecyclableItemController::class, 'update']);
+        Route::delete('/recyclable-items/{id}', [RecyclableItemController::class, 'destroy']);
 
-        Route::post('/recyclable-item-categories', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'store']);
-        Route::put('/recyclable-item-categories/{id}', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'update']);
-        Route::delete('/recyclable-item-categories/{id}', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'destroy']);
+        Route::post('/recyclable-item-categories', [RecyclableItemCategoryController::class, 'store']);
+        Route::put('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'update']);
+        Route::delete('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'destroy']);
 
-        Route::post('/recycling-bins', [\App\Http\Controllers\RecyclingBinController::class, 'store']);
-        Route::put('/recycling-bins/{id}', [\App\Http\Controllers\RecyclingBinController::class, 'update']);
-        Route::delete('/recycling-bins/{id}', [\App\Http\Controllers\RecyclingBinController::class, 'destroy']);
+        Route::post('/recycling-bins', [RecyclingBinController::class, 'store']);
+        Route::put('/recycling-bins/{id}', [RecyclingBinController::class, 'update']);
+        Route::delete('/recycling-bins/{id}', [RecyclingBinController::class, 'destroy']);
     });
 });
 
-Route::get('/recyclable-items', [\App\Http\Controllers\RecyclableItemController::class, 'index']);
-Route::get('/recyclable-items/{id}', [\App\Http\Controllers\RecyclableItemController::class, 'show']);
+Route::get('/recyclable-items', [RecyclableItemController::class, 'index']);
+Route::get('/recyclable-items/{id}', [RecyclableItemController::class, 'show']);
 
-Route::get('/recyclable-item-categories', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'index']);
-Route::get('/recyclable-item-categories/{id}', [\App\Http\Controllers\RecyclableItemCategoryController::class, 'show']);
+Route::get('/recyclable-item-categories', [RecyclableItemCategoryController::class, 'index']);
+Route::get('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'show']);
 
-Route::get('/recycling-bins', [\App\Http\Controllers\RecyclingBinController::class, 'index']);
-Route::get('/recycling-bins/{id}', [\App\Http\Controllers\RecyclingBinController::class, 'show']);
+Route::get('/recycling-bins', [RecyclingBinController::class, 'index']);
+Route::get('/recycling-bins/{id}', [RecyclingBinController::class, 'show']);

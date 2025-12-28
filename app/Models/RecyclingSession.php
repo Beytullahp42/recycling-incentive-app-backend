@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\SessionLifecycle;
+use App\Enums\TransactionStatus;
 
 class RecyclingSession extends Model
 {
@@ -16,12 +18,17 @@ class RecyclingSession extends Model
         'proof_photo_path',
         'started_at',
         'expires_at',
-        'status'
+        'ended_at',
+        'lifecycle_status',
+        'audit_status',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'expires_at' => 'datetime',
+        'ended_at'   => 'datetime',
+        'lifecycle_status' => SessionLifecycle::class,
+        'audit_status'     => TransactionStatus::class,
     ];
 
     // Relationships
