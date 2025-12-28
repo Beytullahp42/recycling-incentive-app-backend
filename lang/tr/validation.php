@@ -182,6 +182,9 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'qr_key' => [
+            'exists' => 'Geri dönüşüm kutusu bulunamadı. Lütfen geçerli bir QR kod tarayın.',
+        ],
         'email' => [
             'unique' => 'Bu e-posta adresi zaten alınmış.',
         ],

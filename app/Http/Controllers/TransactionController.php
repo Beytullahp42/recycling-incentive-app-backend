@@ -22,7 +22,7 @@ class TransactionController extends Controller
             return response()->json(['message' => 'Please create a profile first.'], 403);
         }
 
-        $clientDuration = 180;
+        $clientDuration = 10;
         $gracePeriod    = 40;
         $serverDuration = $clientDuration + $gracePeriod;
 
@@ -98,7 +98,7 @@ class TransactionController extends Controller
                 ->first();
 
             if (! $session) {
-                return response()->json(['message' => 'Session expired or invalid.'], 401);
+                return response()->json(['message' => 'Session expired or invalid.'], 403);
             }
 
             $cachedSession = [
@@ -182,7 +182,7 @@ class TransactionController extends Controller
             ->first();
 
         if (! $session) {
-            return response()->json(['message' => 'Session expired or invalid.'], 401);
+            return response()->json(['message' => 'Session expired or invalid.'], 403);
         }
 
         $path = $request->file('proof_photo')->store('proofs', 'public');

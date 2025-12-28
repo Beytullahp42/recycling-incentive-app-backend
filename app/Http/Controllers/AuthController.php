@@ -35,7 +35,7 @@ class AuthController extends Controller
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Invalid login details'
-            ], 401);
+            ], 403);
         }
 
         $user = User::where('email', $request['email'])->firstOrFail();
@@ -145,7 +145,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Logged in successfully', 'user' => Auth::user()]);
         }
 
-        return response()->json(['message' => 'Invalid login details'], 401);
+        return response()->json(['message' => 'Invalid login details'], 403);
     }
 
     public function adminLogout(Request $request)

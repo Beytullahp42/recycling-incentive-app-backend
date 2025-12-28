@@ -182,6 +182,9 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'qr_key' => [
+            'exists' => 'Recycling bin not found. Please scan a valid QR code.',
+        ],
     ],
 
     /*

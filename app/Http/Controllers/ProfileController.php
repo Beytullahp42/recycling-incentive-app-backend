@@ -50,7 +50,6 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'username' => 'sometimes|string|max:255|unique:profiles,username,' . $profile->id,
             'bio' => 'sometimes|nullable|string',
-            // Do NOT add points here. Users cannot edit their own points.
         ]);
 
         $profile->update($validated);
