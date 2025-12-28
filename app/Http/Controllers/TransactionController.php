@@ -22,7 +22,7 @@ class TransactionController extends Controller
             return response()->json(['message' => 'Please create a profile first.'], 403);
         }
 
-        $clientDuration = 10;
+        $clientDuration = 180;
         $gracePeriod    = 40;
         $serverDuration = $clientDuration + $gracePeriod;
 

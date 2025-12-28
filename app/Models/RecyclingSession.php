@@ -44,4 +44,32 @@ class RecyclingSession extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function acceptedTransactions()
+    {
+        return $this->hasMany(Transaction::class)->where('status', TransactionStatus::ACCEPTED);
+    }
+
+    public function flaggedTransactions()
+    {
+        return $this->hasMany(Transaction::class)->where('status', TransactionStatus::FLAGGED);
+    }
+
+    public function rejectedTransactions()
+    {
+        return $this->hasMany(Transaction::class)->where('status', TransactionStatus::REJECTED);
+    }
+
+    public function getAcceptedPointsAttribute($value): int
+    {
+        return $value ?? 0;
+    }
+    public function getFlaggedPointsAttribute($value): int
+    {
+        return $value ?? 0;
+    }
+    public function getRejectedPointsAttribute($value): int
+    {
+        return $value ?? 0;
+    }
 }

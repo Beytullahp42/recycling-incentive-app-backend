@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecyclableItemController;
 use App\Http\Controllers\RecyclableItemCategoryController;
 use App\Http\Controllers\RecyclingBinController;
+use App\Http\Controllers\RecyclingSessionController;
 
 Route::get('/ping', function () {
     return response()->json(['message' => 'Pong']);
@@ -57,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/recycling-bins', [RecyclingBinController::class, 'store']);
         Route::put('/recycling-bins/{id}', [RecyclingBinController::class, 'update']);
         Route::delete('/recycling-bins/{id}', [RecyclingBinController::class, 'destroy']);
+
+
+        Route::put('/recycling-sessions/{id}', [RecyclingSessionController::class, 'setStatus']);
     });
 });
 
@@ -68,3 +72,6 @@ Route::get('/recyclable-item-categories/{id}', [RecyclableItemCategoryController
 
 Route::get('/recycling-bins', [RecyclingBinController::class, 'index']);
 Route::get('/recycling-bins/{id}', [RecyclingBinController::class, 'show']);
+
+Route::get('/recycling-sessions', [RecyclingSessionController::class, 'index']);
+Route::get('/recycling-sessions/{id}', [RecyclingSessionController::class, 'show']);
