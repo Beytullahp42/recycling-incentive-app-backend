@@ -16,7 +16,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($user->profile) {
-            return response()->json(['message' => 'User already has a profile.'], 409);
+            return response()->json(['message' => __('messages.profile.already_exists')], 409);
         }
 
         $validated = $request->validate([
@@ -44,7 +44,7 @@ class ProfileController extends Controller
         $profile = $user->profile;
 
         if (! $profile) {
-            return response()->json(['message' => 'Profile not found.'], 404);
+            return response()->json(['message' => __('messages.profile.not_found')], 404);
         }
 
         $validated = $request->validate([
@@ -78,7 +78,7 @@ class ProfileController extends Controller
         $profile = Profile::find($id);
 
         if (! $profile) {
-            return response()->json(['message' => 'Profile not found.'], 404);
+            return response()->json(['message' => __('messages.profile.not_found')], 404);
         }
 
         return response()->json($profile, 200);
@@ -92,7 +92,7 @@ class ProfileController extends Controller
         $profile = Profile::where('username', $username)->first();
 
         if (! $profile) {
-            return response()->json(['message' => 'Profile not found.'], 404);
+            return response()->json(['message' => __('messages.profile.not_found')], 404);
         }
 
         return response()->json($profile, 200);
@@ -107,7 +107,7 @@ class ProfileController extends Controller
         $profile = Profile::where('username', $username)->first();
 
         if (! $profile) {
-            return response()->json(['message' => 'Profile not found.'], 404);
+            return response()->json(['message' => __('messages.profile.not_found')], 404);
         }
 
         $validated = $request->validate([

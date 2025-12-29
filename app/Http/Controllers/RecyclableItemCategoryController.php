@@ -30,7 +30,7 @@ class RecyclableItemCategoryController extends Controller
         $category = RecyclableItemCategory::find($id);
 
         if (! $category) {
-            return response()->json(['message' => 'Category not found.'], 404);
+            return response()->json(['message' => __('messages.category.not_found')], 404);
         }
 
         return response()->json($category, 200);
@@ -41,7 +41,7 @@ class RecyclableItemCategoryController extends Controller
         $category = RecyclableItemCategory::find($id);
 
         if (! $category) {
-            return response()->json(['message' => 'Category not found.'], 404);
+            return response()->json(['message' => __('messages.category.not_found')], 404);
         }
 
         $validated = $request->validate([
@@ -59,19 +59,19 @@ class RecyclableItemCategoryController extends Controller
         $category = RecyclableItemCategory::find($id);
 
         if (! $category) {
-            return response()->json(['message' => 'Category not found.'], 404);
+            return response()->json(['message' => __('messages.category.not_found')], 404);
         }
 
         // The Model's 'booted' method will protect the 'Uncategorized' category here but we can double check
         if ($category->name === 'Uncategorized') {
-            return response()->json(['message' => 'The Uncategorized category cannot be deleted.'], 403);
+            return response()->json(['message' => __('messages.category.uncategorized_delete_error')], 403);
         }
 
         // Find the 'Uncategorized' category to move items to
         $uncategorized = RecyclableItemCategory::where('name', 'Uncategorized')->first();
 
         if (!$uncategorized) {
-            return response()->json(['message' => 'Critical Error: Uncategorized category not found. Cannot safely delete.'], 500);
+            return response()->json(['message' => __('messages.category.critical_uncategorized_missing')], 500);
         }
 
         // Reassign all items belonging to this category to 'Uncategorized'
@@ -79,6 +79,6 @@ class RecyclableItemCategoryController extends Controller
 
         $category->delete();
 
-        return response()->json(['message' => 'Category deleted successfully.'], 200);
+        return response()->json(['message' => __('messages.category.deleted')], 200);
     }
 }

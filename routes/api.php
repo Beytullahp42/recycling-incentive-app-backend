@@ -10,6 +10,8 @@ use App\Http\Controllers\RecyclableItemController;
 use App\Http\Controllers\RecyclableItemCategoryController;
 use App\Http\Controllers\RecyclingBinController;
 use App\Http\Controllers\RecyclingSessionController;
+use App\Http\Controllers\LeaderboardController;
+
 
 Route::get('/ping', function () {
     return response()->json(['message' => 'Pong']);
@@ -23,6 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::get('/leaderboard/current-season', [LeaderboardController::class, 'currentSeason']);
+    Route::get('/leaderboard/all-time', [LeaderboardController::class, 'allTime']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/password', [AuthController::class, 'updatePassword']);

@@ -34,7 +34,7 @@ class AuthController extends Controller
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
-                'message' => 'Invalid login details'
+                'message' => __('messages.auth.invalid_login')
             ], 403);
         }
 
@@ -53,7 +53,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => __('messages.auth.logged_out')
         ]);
     }
 
@@ -77,7 +77,7 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Password updated successfully'
+            'message' => __('messages.auth.password_updated')
         ]);
     }
 
@@ -92,7 +92,7 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Email updated successfully',
+            'message' => __('messages.auth.email_updated'),
             'user' => $request->user(),
         ]);
     }
@@ -120,7 +120,7 @@ class AuthController extends Controller
         $user->delete();
 
         return response()->json([
-            'message' => 'Account deleted successfully'
+            'message' => __('messages.auth.account_deleted')
         ]);
     }
 
@@ -139,13 +139,13 @@ class AuthController extends Controller
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                return response()->json(['message' => 'Unauthorized'], 403);
+                return response()->json(['message' => __('messages.auth.unauthorized')], 403);
             }
 
-            return response()->json(['message' => 'Logged in successfully', 'user' => Auth::user()]);
+            return response()->json(['message' => __('messages.auth.logged_in'), 'user' => Auth::user()]);
         }
 
-        return response()->json(['message' => 'Invalid login details'], 403);
+        return response()->json(['message' => __('messages.auth.invalid_login')], 403);
     }
 
     public function adminLogout(Request $request)
@@ -154,6 +154,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out successfully']);
+        return response()->json(['message' => __('messages.auth.logged_out')]);
     }
 }

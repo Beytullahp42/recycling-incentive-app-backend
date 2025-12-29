@@ -41,7 +41,7 @@ class RecyclingBinController extends Controller
         $bin = RecyclingBin::find($id);
 
         if (! $bin) {
-            return response()->json(['message' => 'Bin not found.'], 404);
+            return response()->json(['message' => __('messages.bin.not_found')], 404);
         }
 
         return response()->json($bin, 200);
@@ -55,7 +55,7 @@ class RecyclingBinController extends Controller
         $bin = RecyclingBin::find($id);
 
         if (! $bin) {
-            return response()->json(['message' => 'Bin not found.'], 404);
+            return response()->json(['message' => __('messages.bin.not_found')], 404);
         }
 
         $validated = $request->validate([
@@ -77,11 +77,11 @@ class RecyclingBinController extends Controller
         $bin = RecyclingBin::find($id);
 
         if (! $bin) {
-            return response()->json(['message' => 'Bin not found.'], 404);
+            return response()->json(['message' => __('messages.bin.not_found')], 404);
         }
 
         $bin->delete();
 
-        return response()->json(['message' => 'Bin deleted successfully.'], 200);
+        return response()->json(['message' => __('messages.bin.deleted')], 200);
     }
 }

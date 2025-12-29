@@ -47,7 +47,7 @@ class RecyclingBinTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_everyone_can_view_bins()
+    public function test_only_admin_can_view_bins()
     {
         \App\Models\RecyclingBin::create([
             'name' => 'Public Bin',
@@ -55,13 +55,17 @@ class RecyclingBinTest extends TestCase
             'longitude' => 20.0,
         ]);
 
-        $this->getJson('/api/recycling-bins')
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->getJson('/api/recycling-bins')
             ->assertStatus(200)
             ->assertJsonFragment(['name' => 'Public Bin']);
 
         $user = User::factory()->create();
         $this->actingAs($user)->getJson('/api/recycling-bins')
-            ->assertStatus(200);
+            ->assertStatus(403);
+
+        $this->getJson('/api/recycling-bins')
+            ->assertStatus(403);
     }
 
     public function test_admin_can_update_bin()

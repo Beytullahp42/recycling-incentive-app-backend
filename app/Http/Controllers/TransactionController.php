@@ -12,6 +12,8 @@ use App\Models\Profile;
 use App\Models\Transaction;
 use App\Enums\TransactionStatus;
 use App\Enums\SessionLifecycle;
+use App\Models\LeaderboardEntry;
+use App\Models\Season;
 
 class TransactionController extends Controller
 {
@@ -19,7 +21,7 @@ class TransactionController extends Controller
     {
         // 1. Pre-check: User MUST have a profile to collect points
         if (!$request->user()->profile) {
-            return response()->json(['message' => 'Please create a profile first.'], 403);
+            return response()->json(['message' => __('messages.transaction.create_profile_first')], 403);
         }
 
         $clientDuration = 180;
@@ -42,7 +44,7 @@ class TransactionController extends Controller
         );
 
         if ($distance > 20) {
-            return response()->json(['message' => 'Too far from the bin.'], 403);
+            return response()->json(['message' => __('messages.transaction.too_far')], 403);
         }
 
         do {
@@ -98,7 +100,7 @@ class TransactionController extends Controller
                 ->first();
 
             if (! $session) {
-                return response()->json(['message' => 'Session expired or invalid.'], 403);
+                return response()->json(['message' => __('messages.transaction.session_expired')], 403);
             }
 
             $cachedSession = [
@@ -116,7 +118,7 @@ class TransactionController extends Controller
         $item = RecyclableItem::where('barcode', $request->barcode)->first();
 
         if (! $item) {
-            return response()->json(['success' => false, 'message' => 'Unknown item.'], 404);
+            return response()->json(['success' => false, 'message' => __('messages.transaction.unknown_item')], 404);
         }
 
         // Check for duplicates in THIS session
@@ -135,7 +137,7 @@ class TransactionController extends Controller
                 // Stop them and ask for a photo
                 return response()->json([
                     'success' => false,
-                    'message' => 'Duplicate item detected! Please take a group photo.',
+                    'message' => __('messages.transaction.duplicate_item'),
                     'requires_proof' => true
                 ], 422);
             }
@@ -154,6 +156,21 @@ class TransactionController extends Controller
         if ($status === TransactionStatus::ACCEPTED) {
             Profile::where('id', $cachedSession['profile_id'])
                 ->increment('points', $snapshotPoints);
+            Profile::where('id', $cachedSession['profile_id'])
+                ->increment('balance', $snapshotPoints);
+            $activeSeason = Season::where('is_active', true)->first();
+            if ($activeSeason) {
+                $entry = LeaderboardEntry::firstOrCreate(
+                    [
+                        'user_id' => $cachedSession['user_id'],
+                        'season_id' => $activeSeason->id
+                    ],
+                    [
+                        'points' => 0
+                    ]
+                );
+                $entry->increment('points', $snapshotPoints);
+            }
         }
 
         return response()->json([
@@ -161,7 +178,7 @@ class TransactionController extends Controller
             'points_awarded' => ($status === TransactionStatus::ACCEPTED) ? $snapshotPoints : 0,
             'item_name'      => $item->name,
             'status'         => $status,
-            'message'        => ($status === TransactionStatus::FLAGGED) ? 'Item saved for review.' : 'Points added!',
+            'message'        => ($status === TransactionStatus::FLAGGED) ? __('messages.transaction.item_flagged') : __('messages.transaction.points_added'),
         ]);
     }
 
@@ -182,7 +199,7 @@ class TransactionController extends Controller
             ->first();
 
         if (! $session) {
-            return response()->json(['message' => 'Session expired or invalid.'], 403);
+            return response()->json(['message' => __('messages.transaction.session_expired')], 403);
         }
 
         $path = $request->file('proof_photo')->store('proofs', 'public');
@@ -204,7 +221,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Proof uploaded successfully. Unlimited scanning unlocked.',
+            'message' => __('messages.transaction.proof_uploaded'),
         ]);
     }
 
@@ -225,7 +242,7 @@ class TransactionController extends Controller
             'ended_at'         => now(),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Session ended.']);
+        return response()->json(['success' => true, 'message' => __('messages.transaction.session_ended')]);
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)

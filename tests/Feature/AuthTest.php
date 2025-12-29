@@ -20,7 +20,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(201)
-            ->assertJsonStructure(['access_token', 'token_type']);
+            ->assertJsonStructure(['token', 'token_type']);
 
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
     }
@@ -38,7 +38,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['access_token', 'token_type']);
+            ->assertJsonStructure(['token', 'token_type']);
     }
 
     public function test_user_can_logout()

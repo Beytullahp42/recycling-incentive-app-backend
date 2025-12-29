@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RecyclingSession;
 use App\Enums\TransactionStatus;
+use App\Models\LeaderboardEntry;
 use Illuminate\Support\Facades\DB;
 use App\Models\Profile;
+use App\Models\Season;
 
 class RecyclingSessionController extends Controller
 {
@@ -38,7 +40,7 @@ class RecyclingSessionController extends Controller
 
         if (!$session) {
             return response()->json([
-                'message' => 'Session not found',
+                'message' => __('messages.session.not_found'),
             ], 404);
         }
 
@@ -60,7 +62,7 @@ class RecyclingSessionController extends Controller
 
         if ($session->audit_status !== TransactionStatus::FLAGGED) {
             return response()->json([
-                'message' => 'Session is not flagged',
+                'message' => __('messages.session.not_flagged'),
             ], 400);
         }
 
@@ -91,12 +93,26 @@ class RecyclingSessionController extends Controller
                 $profile = Profile::where('user_id', $session->user_id)->first();
                 if ($profile) {
                     $profile->increment('points', $pointsToAward);
+                    $profile->increment('balance', $pointsToAward);
+                    $activeSeason = Season::where('is_active', true)->first();
+                    if ($activeSeason) {
+                        $entry = LeaderboardEntry::firstOrCreate(
+                            [
+                                'user_id' => $session->user_id,
+                                'season_id' => $activeSeason->id
+                            ],
+                            [
+                                'points' => 0
+                            ]
+                        );
+                        $entry->increment('points', $pointsToAward);
+                    }
                 }
             }
         });
 
         return response()->json([
-            'message' => 'Session status updated successfully',
+            'message' => __('messages.session.status_updated'),
         ], 200);
     }
 }

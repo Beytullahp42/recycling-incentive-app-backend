@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->text('bio')->nullable();
             $table->date('birth_date');
-            $table->integer('points')->default(0);
+            $table->unsignedBigInteger('points')->default(0);
+            $table->unsignedBigInteger('balance')->default(0);
             $table->timestamps();
         });
     }

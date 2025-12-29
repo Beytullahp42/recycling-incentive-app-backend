@@ -38,7 +38,7 @@ class RecyclableItemController extends Controller
         $item = RecyclableItem::with('category')->find($id);
 
         if (! $item) {
-            return response()->json(['message' => 'Item not found.'], 404);
+            return response()->json(['message' => __('messages.item.not_found')], 404);
         }
 
         return response()->json($item, 200);
@@ -49,7 +49,7 @@ class RecyclableItemController extends Controller
         $item = RecyclableItem::find($id);
 
         if (! $item) {
-            return response()->json(['message' => 'Item not found.'], 404);
+            return response()->json(['message' => __('messages.item.not_found')], 404);
         }
 
         $validated = $request->validate([
@@ -73,11 +73,11 @@ class RecyclableItemController extends Controller
         $item = RecyclableItem::find($id);
 
         if (! $item) {
-            return response()->json(['message' => 'Item not found.'], 404);
+            return response()->json(['message' => __('messages.item.not_found')], 404);
         }
 
         $item->delete();
 
-        return response()->json(['message' => 'Item deleted successfully.'], 200);
+        return response()->json(['message' => __('messages.item.deleted')], 200);
     }
 }
