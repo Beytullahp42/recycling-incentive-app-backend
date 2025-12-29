@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use App\Models\Transaction;
+use App\Models\Season;
+use App\Models\LeaderboardEntry;
+use App\Enums\TransactionStatus;
 
 class ProfileController extends Controller
 {
@@ -64,10 +67,63 @@ class ProfileController extends Controller
     {
         $profile = $request->user()->profile;
 
-        // This will now include "points": 0 (or whatever value) automatically
         return response()->json([
             'profile' => $profile,
         ], 200);
+    }
+
+    public function dashboard(Request $request)
+    {
+        $user = $request->user();
+
+        // 1. Basic Stats
+        $points = $user->profile->points;
+
+        // 2. Total Items Recycled (Simple Count)
+        $totalItems = Transaction::where('user_id', $user->id)
+            ->where('status', TransactionStatus::ACCEPTED)
+            ->count();
+
+        // 3. Leaderboard Logic (Rank & Rival)
+        $rank = '-';
+        $rival = null;
+
+        $activeSeason = Season::where('is_active', true)->first();
+
+        if ($activeSeason) {
+            // A. Find My Entry for this Season
+            $myEntry = LeaderboardEntry::where('season_id', $activeSeason->id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($myEntry) {
+                // Calculate Rank: Count how many people have MORE points than me
+                $rank = LeaderboardEntry::where('season_id', $activeSeason->id)
+                    ->where('points', '>', $myEntry->points)
+                    ->count() + 1;
+
+                // B. Find the "Rival" (The person directly above me)
+                $rivalEntry = LeaderboardEntry::with('user.profile')
+                    ->where('season_id', $activeSeason->id)
+                    ->where('points', '>', $myEntry->points)
+                    ->orderBy('points', 'asc') // Smallest gap first
+                    ->first();
+
+                if ($rivalEntry) {
+                    $rival = [
+                        'username' => $rivalEntry->user->profile->username,
+                        'gap'      => $rivalEntry->points - $myEntry->points
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'score'       => $points,
+            'total_items' => $totalItems,
+            'rank'        => $rank,
+            'rival'       => $rival, // null if I am #1 or unranked
+        ]);
     }
 
     /**

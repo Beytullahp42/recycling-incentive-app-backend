@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/email', [AuthController::class, 'updateEmail']);
     Route::delete('/account', [AuthController::class, 'deleteAccount']);
 
+    Route::get('/dashboard', [ProfileController::class, 'dashboard']);
+
     Route::post('/profile', [ProfileController::class, 'store']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::get('/profile/me', [ProfileController::class, 'me']);

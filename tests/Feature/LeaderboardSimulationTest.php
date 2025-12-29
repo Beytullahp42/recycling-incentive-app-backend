@@ -233,6 +233,41 @@ class LeaderboardSimulationTest extends TestCase
         $this->assertEquals(10, $data['leaderboard'][2]['points']);
 
         // ==========================================
+        // 4.5. VERIFY DASHBOARD (Season 2)
+        // ==========================================
+        echo "\n-------- RAW DASHBOARD OUTPUT (Alice - S2 End) --------\n";
+        // Alice: 30 pts (S1), 0 pts (S2). Total 30. Rank S2: - (No entry). Total Items: 3
+        $response = $this->actingAs($alice)->getJson('/api/dashboard');
+        $d = $response->json();
+        echo json_encode($d, JSON_PRETTY_PRINT) . "\n";
+        $this->assertEquals(30, $d['score']);
+        // We verify items count if logic assumes Transaction = Item. 
+        // Alice recycled 3 items in S1.
+
+        echo "\n-------- RAW DASHBOARD OUTPUT (Bob - S2 End) --------\n";
+        // Bob: 60 pts total. Rank S2: 1. Total Items: 1 (S1) + 2 (S2) = 3
+        $bob->refresh();
+        $response = $this->actingAs($bob)->getJson('/api/dashboard');
+        $d = $response->json();
+        echo json_encode($d, JSON_PRETTY_PRINT) . "\n";
+        $this->assertEquals(60, $d['score']);
+        $this->assertEquals(1, $d['rank']);
+        $this->assertNull($d['rival']);
+
+        echo "\n-------- RAW DASHBOARD OUTPUT (Charlie - S2 End) --------\n";
+        // Charlie: 10 pts total. Rank S2: 2. Total Items: 1
+        $charlie->refresh();
+        $response = $this->actingAs($charlie)->getJson('/api/dashboard');
+        $d = $response->json();
+        echo json_encode($d, JSON_PRETTY_PRINT) . "\n";
+        $this->assertEquals(10, $d['score']);
+        $this->assertEquals(2, $d['rank']);
+        $this->assertNotNull($d['rival']);
+        $this->assertEquals('Bob', $d['rival']['username']);
+        $this->assertEquals(30, $d['rival']['gap']); // Bob 40 - Charlie 10 = 30 gap logic? 
+        // Wait, rival gap: Rival points - My points. 40 - 10 = 30. Correct.
+
+        // ==========================================
         // 5. INACTIVE USER SCENARIO (Dave)
         // ==========================================
         echo "\n-------- RAW JSON OUTPUT (Dave - Inactive) --------\n";
