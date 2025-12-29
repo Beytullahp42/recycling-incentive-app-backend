@@ -47,31 +47,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/logout', [AuthController::class, 'adminLogout']);
         Route::put('/admin/profile/{username}', [ProfileController::class, 'adminUpdate']);
 
+        Route::get('/recyclable-items', [RecyclableItemController::class, 'index']);
+        Route::get('/recyclable-items/{id}', [RecyclableItemController::class, 'show']);
         Route::post('/recyclable-items', [RecyclableItemController::class, 'store']);
         Route::put('/recyclable-items/{id}', [RecyclableItemController::class, 'update']);
         Route::delete('/recyclable-items/{id}', [RecyclableItemController::class, 'destroy']);
 
+        Route::get('/recyclable-item-categories', [RecyclableItemCategoryController::class, 'index']);
+        Route::get('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'show']);
         Route::post('/recyclable-item-categories', [RecyclableItemCategoryController::class, 'store']);
         Route::put('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'update']);
         Route::delete('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'destroy']);
 
+        Route::get('/recycling-bins', [RecyclingBinController::class, 'index']);
+        Route::get('/recycling-bins/{id}', [RecyclingBinController::class, 'show']);
         Route::post('/recycling-bins', [RecyclingBinController::class, 'store']);
         Route::put('/recycling-bins/{id}', [RecyclingBinController::class, 'update']);
         Route::delete('/recycling-bins/{id}', [RecyclingBinController::class, 'destroy']);
 
-
+        Route::get('/recycling-sessions', [RecyclingSessionController::class, 'index']);
+        Route::get('/recycling-sessions/{id}', [RecyclingSessionController::class, 'show']);
         Route::put('/recycling-sessions/{id}', [RecyclingSessionController::class, 'setStatus']);
     });
 });
-
-Route::get('/recyclable-items', [RecyclableItemController::class, 'index']);
-Route::get('/recyclable-items/{id}', [RecyclableItemController::class, 'show']);
-
-Route::get('/recyclable-item-categories', [RecyclableItemCategoryController::class, 'index']);
-Route::get('/recyclable-item-categories/{id}', [RecyclableItemCategoryController::class, 'show']);
-
-Route::get('/recycling-bins', [RecyclingBinController::class, 'index']);
-Route::get('/recycling-bins/{id}', [RecyclingBinController::class, 'show']);
-
-Route::get('/recycling-sessions', [RecyclingSessionController::class, 'index']);
-Route::get('/recycling-sessions/{id}', [RecyclingSessionController::class, 'show']);
