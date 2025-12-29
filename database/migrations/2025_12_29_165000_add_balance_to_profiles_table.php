@@ -10,7 +10,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    /*  public function up()
+    public function up()
     {
         Schema::table('profiles', function (Blueprint $table) {
             $table->unsignedBigInteger('balance')->default(0)->after('points');
@@ -26,5 +26,4 @@ return new class extends Migration
             $table->dropColumn('balance');
         });
     }
-        */
 };
