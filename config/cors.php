@@ -20,7 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://ria-admin-react.beytullahp.com',
+        'https://ria-admin.beytullahp.com',
         'http://localhost:5173',
         'http://127.0.0.1:5173',
     ],
