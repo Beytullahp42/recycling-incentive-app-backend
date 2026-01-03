@@ -25,14 +25,12 @@ class RecyclableItemCategory extends Model
 
     protected static function booted()
     {
-        // 1. Prevent deleting the Uncategorized category
         static::deleting(function ($category) {
             if ($category->name === 'Uncategorized') {
                 abort(403, 'Uncategorized category cannot be deleted.');
             }
         });
 
-        // 2. Prevent renaming the Uncategorized category
         static::updating(function ($category) {
             if ($category->getOriginal('name') === 'Uncategorized' && $category->isDirty('name')) {
                 abort(403, 'The name of the Uncategorized category cannot be updated.');

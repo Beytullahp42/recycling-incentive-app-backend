@@ -23,35 +23,24 @@ class RotateSeasons extends Command
     {
         $this->info("Checking Season Status...");
 
-        // 1. Find the currently active season
         $activeSeason = Season::where('is_active', true)->latest()->first();
 
-        // SCENARIO A: System is brand new (No seasons yet)
         if (! $activeSeason) {
             $this->info("No active season found. Starting the first season!");
             $this->startNewSeason(now()->format('F Y'));
             return;
         }
 
-        // SCENARIO B: Season is still valid
         if ($activeSeason->ends_at->isFuture() && ! $this->option('force')) {
             $this->info("Current season '{$activeSeason->name}' is still active. Ends in: " . $activeSeason->ends_at->diffForHumans());
             return;
         }
 
-        // SCENARIO C: Season has expired (or Forced) -> ROTATE!
         $this->warn("Season '{$activeSeason->name}' has ended. Rotating now...");
 
-        // Wrap in transaction to prevent race conditions
         DB::transaction(function () use ($activeSeason) {
-            // Close the old one
             $activeSeason->update(['is_active' => false]);
-
-            // Calculate start date (should be the exact second the old one ended)
             $newStartDate = $activeSeason->ends_at;
-
-            // Generate Name: "January 2026"
-            // We use the start date of the NEW season to determine the name
             $newName = $newStartDate->format('F Y');
 
             $this->startNewSeason($newName, $newStartDate);
@@ -60,10 +49,7 @@ class RotateSeasons extends Command
 
     private function startNewSeason($name, $startDate = null)
     {
-        // Default to NOW if no start date provided (first run)
         $start = $startDate ? Carbon::instance($startDate) : now();
-
-        // CONFIG: Monthly seasons
         $end = $start->copy()->addMonth();
 
         $season = Season::create([
@@ -73,8 +59,8 @@ class RotateSeasons extends Command
             'is_active' => true,
         ]);
 
-        $this->info("✅ Successfully started: $name");
-        $this->info("   Starts: $start");
-        $this->info("   Ends:   $end");
+        $this->info("Successfully started: $name");
+        $this->info("Starts: $start");
+        $this->info("Ends:   $end");
     }
 }

@@ -10,11 +10,10 @@ use App\Models\Profile;
 class LeaderboardController extends Controller
 {
     /**
-     * Endpoint 1: GET /api/leaderboard/current
+     * GET /api/leaderboard/current
      */
     public function currentSeason(Request $request)
     {
-        // 1. Find Active Season
         $season = Season::where('is_active', true)->first();
 
         if (!$season) {
@@ -26,7 +25,6 @@ class LeaderboardController extends Controller
             ]);
         }
 
-        // 2. Top 50 for THIS Season
         $leaderboard = LeaderboardEntry::with('user.profile')
             ->where('season_id', $season->id)
             ->orderByDesc('points')
@@ -40,7 +38,6 @@ class LeaderboardController extends Controller
                 ];
             });
 
-        // 3. User's Seasonal Rank
         $userStats = $this->getUserRank($request->user(), 'season', $season->id);
 
         return response()->json([
@@ -56,11 +53,10 @@ class LeaderboardController extends Controller
     }
 
     /**
-     * Endpoint 2: GET /api/leaderboard/all-time
+     * GET /api/leaderboard/all-time
      */
     public function allTime(Request $request)
     {
-        // 1. Top 50 Global Users
         $leaderboard = Profile::with('user')
             ->orderByDesc('points')
             ->limit(50)
@@ -73,7 +69,6 @@ class LeaderboardController extends Controller
                 ];
             });
 
-        // 2. User's All-Time Rank
         $userStats = $this->getUserRank($request->user(), 'all_time');
 
         return response()->json([
@@ -84,9 +79,6 @@ class LeaderboardController extends Controller
         ]);
     }
 
-    /**
-     * Shared Helper: Calculates rank efficiently
-     */
     private function getUserRank($user, $type, $seasonId = null)
     {
         if (!$user || !$user->profile) return null;
@@ -101,7 +93,6 @@ class LeaderboardController extends Controller
                 $rank = $count + 1;
             }
         } else {
-            // Seasonal
             $entry = LeaderboardEntry::where('season_id', $seasonId)
                 ->where('user_id', $user->id)
                 ->first();

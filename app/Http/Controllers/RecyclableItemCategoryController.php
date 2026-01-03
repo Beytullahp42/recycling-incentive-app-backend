@@ -62,19 +62,16 @@ class RecyclableItemCategoryController extends Controller
             return response()->json(['message' => __('messages.category.not_found')], 404);
         }
 
-        // The Model's 'booted' method will protect the 'Uncategorized' category here but we can double check
         if ($category->name === 'Uncategorized') {
             return response()->json(['message' => __('messages.category.uncategorized_delete_error')], 403);
         }
 
-        // Find the 'Uncategorized' category to move items to
         $uncategorized = RecyclableItemCategory::where('name', 'Uncategorized')->first();
 
         if (!$uncategorized) {
             return response()->json(['message' => __('messages.category.critical_uncategorized_missing')], 500);
         }
 
-        // Reassign all items belonging to this category to 'Uncategorized'
         RecyclableItem::where('category_id', $category->id)->update(['category_id' => $uncategorized->id]);
 
         $category->delete();

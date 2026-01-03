@@ -76,37 +76,30 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // 1. Basic Stats
         $points = $user->profile->points;
 
-        // 2. Total Items Recycled (Simple Count)
         $totalItems = Transaction::where('user_id', $user->id)
             ->where('status', TransactionStatus::ACCEPTED)
             ->count();
 
-        // 3. Leaderboard Logic (Rank & Rival)
         $rank = '-';
         $rival = null;
 
         $activeSeason = Season::where('is_active', true)->first();
 
         if ($activeSeason) {
-            // A. Find My Entry for this Season
             $myEntry = LeaderboardEntry::where('season_id', $activeSeason->id)
                 ->where('user_id', $user->id)
                 ->first();
 
             if ($myEntry) {
-                // Calculate Rank: Count how many people have MORE points than me
                 $rank = LeaderboardEntry::where('season_id', $activeSeason->id)
                     ->where('points', '>', $myEntry->points)
                     ->count() + 1;
-
-                // B. Find the "Rival" (The person directly above me)
                 $rivalEntry = LeaderboardEntry::with('user.profile')
                     ->where('season_id', $activeSeason->id)
                     ->where('points', '>', $myEntry->points)
-                    ->orderBy('points', 'asc') // Smallest gap first
+                    ->orderBy('points', 'asc')
                     ->first();
 
                 if ($rivalEntry) {
@@ -122,7 +115,7 @@ class ProfileController extends Controller
             'score'       => $points,
             'total_items' => $totalItems,
             'rank'        => $rank,
-            'rival'       => $rival, // null if I am #1 or unranked
+            'rival'       => $rival,
         ]);
     }
 
@@ -156,7 +149,6 @@ class ProfileController extends Controller
 
     /**
      * Update any profile field (Admin only).
-     * ADDED: Ability to update points manually.
      */
     public function adminUpdate(Request $request, $username)
     {
@@ -172,7 +164,7 @@ class ProfileController extends Controller
             'username' => 'sometimes|string|max:255|unique:profiles,username,' . $profile->id,
             'bio' => 'sometimes|nullable|string',
             'birth_date' => 'sometimes|date',
-            'points' => 'sometimes|integer|min:0', // <--- Allowed for Admins
+            'points' => 'sometimes|integer|min:0',
         ]);
 
         $profile->update($validated);

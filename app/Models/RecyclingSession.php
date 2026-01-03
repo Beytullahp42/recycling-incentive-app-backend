@@ -31,7 +31,6 @@ class RecyclingSession extends Model
         'audit_status'     => TransactionStatus::class,
     ];
 
-    // Relationships
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('seasons', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // e.g. "January 2026"
+            $table->string('name');
             $table->timestamp('starts_at');
             $table->timestamp('ends_at');
-            $table->boolean('is_active')->default(true); // Helper to find current season fast
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -19,10 +19,6 @@ class SetLocale
         if ($request->hasHeader('Accept-Language')) {
             $locale = $request->header('Accept-Language');
 
-            // Basic sanitization/validation if needed, or just take the first 2 chars
-            // e.g. "tr-TR" -> "tr"
-            // For now, let's just use the strict value or map it.
-            // A simple approach is taking the first 2 characters.
             $lang = substr($locale, 0, 2);
 
             if (in_array($lang, ['en', 'tr', 'es'])) {

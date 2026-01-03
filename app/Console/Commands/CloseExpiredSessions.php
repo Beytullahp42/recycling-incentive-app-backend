@@ -35,18 +35,16 @@ class CloseExpiredSessions extends Command
         $count = 0;
 
         foreach ($expiredSessions as $session) {
-            // 2. Clear from Cache (just in case)
             Cache::forget("recycle_session_{$session->session_token}");
 
-            // 3. Update Database
             $session->update([
-                'lifecycle_status' => SessionLifecycle::CLOSED, // Distinct from 'closed' (manual)
+                'lifecycle_status' => SessionLifecycle::CLOSED,
                 'ended_at'         => now(),
             ]);
 
             $count++;
         }
 
-        $this->info("Successfully closed {$count} expired sessions."); //
+        $this->info("Successfully closed {$count} expired sessions.");
     }
 }

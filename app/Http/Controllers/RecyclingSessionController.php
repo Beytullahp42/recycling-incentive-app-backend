@@ -44,15 +44,13 @@ class RecyclingSessionController extends Controller
             ], 404);
         }
 
-        $session->load('transactions.item'); //what happens if I do this? this also returns its category too lol
+        $session->load('transactions.item');
 
         return response()->json($session);
     }
 
     public function setStatus(Request $request, $id)
     {
-
-        // "accepted", "rejected"
 
         $request->validate([
             'status' => ['required', 'in:' . TransactionStatus::ACCEPTED->value . ',' . TransactionStatus::REJECTED->value],
@@ -69,12 +67,8 @@ class RecyclingSessionController extends Controller
         DB::transaction(function () use ($session, $request) {
             $newStatus = TransactionStatus::from($request->status);
 
-            // 1. Update Session Status
             $session->audit_status = $newStatus;
             $session->save();
-
-            // 2. Update Transactions
-            // We only update 'flagged' transactions. We don't touch ones that were already valid.
             $flaggedTransactions = $session->transactions()
                 ->where('status', TransactionStatus::FLAGGED)
                 ->get();
@@ -87,9 +81,7 @@ class RecyclingSessionController extends Controller
                 $pointsToAward += $t->points_awarded;
             }
 
-            // 3. If Approved, Add Points to User Profile
             if ($newStatus === TransactionStatus::ACCEPTED && $pointsToAward > 0) {
-                // Find profile by user_id
                 $profile = Profile::where('user_id', $session->user_id)->first();
                 if ($profile) {
                     $profile->increment('points', $pointsToAward);

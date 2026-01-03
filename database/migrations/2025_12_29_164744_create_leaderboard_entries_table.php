@@ -18,11 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('points')->default(0);
             $table->timestamps();
 
-            // ⚡️ PERFORMANCE INDEXES
-            // 1. Speeds up "Show me the top 100 for this season"
             $table->index(['season_id', 'points']);
-
-            // 2. Ensures a user only has ONE entry per season
             $table->unique(['season_id', 'user_id']);
         });
     }

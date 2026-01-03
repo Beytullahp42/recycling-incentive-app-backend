@@ -9,7 +9,6 @@ class RecyclableItemController extends Controller
 {
     public function index()
     {
-        // Eager load 'category' so the model doesn't run extra queries
         $items = RecyclableItem::with('category')->get();
         return response()->json($items, 200);
     }
@@ -26,7 +25,6 @@ class RecyclableItemController extends Controller
 
         $item = RecyclableItem::create($validated);
 
-        // Load category so the response includes the correct calculated price
         $item->load('category');
 
         return response()->json($item, 201);
@@ -34,7 +32,6 @@ class RecyclableItemController extends Controller
 
     public function show($id)
     {
-        // Find with category
         $item = RecyclableItem::with('category')->find($id);
 
         if (! $item) {
@@ -62,7 +59,6 @@ class RecyclableItemController extends Controller
 
         $item->update($validated);
 
-        // Refresh the relationship data
         $item->load('category');
 
         return response()->json($item, 200);
