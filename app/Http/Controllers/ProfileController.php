@@ -186,5 +186,21 @@ class ProfileController extends Controller
         $profiles = Profile::paginate(20);
         return response()->json($profiles, 200);
     }
+
+    public function adminGet($username)
+    {
+        $profile = Profile::where('username', $username)->first();
+
+        if (! $profile) {
+            return response()->json(['message' => __('messages.profile.not_found')], 404);
+        }
+
+        $user = $profile->user;
+
+        return response()->json([
+            'profile' => $profile,
+            'user' => $user,
+        ], 200);
+    }
         
 }

@@ -51,7 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/ping', function () {
             return response()->json(['message' => 'Pong']);
         });
-        Route::post('/admin/logout', [AuthController::class, 'adminLogout']);
+        Route::post('/admin/logout', [AuthController::class, 'adminLogout']);       
+        Route::get('/admin/profile/{username}', [ProfileController::class, 'adminGet']);
         Route::put('/admin/profile/{username}', [ProfileController::class, 'adminUpdate']);
         Route::get('/admin/profiles', [ProfileController::class, 'getAllProfiles']);
 
