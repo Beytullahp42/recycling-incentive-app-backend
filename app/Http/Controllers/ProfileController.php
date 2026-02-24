@@ -153,12 +153,13 @@ class ProfileController extends Controller
     public function adminUpdate(Request $request, $username)
     {
         $profile = Profile::where('username', $username)->first();
+        $user = $profile->user;
 
         if (! $profile) {
             return response()->json(['message' => __('messages.profile.not_found')], 404);
         }
 
-        $validated = $request->validate([
+        $validatedProfile = $request->validate([
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
             'username' => 'sometimes|string|max:255|unique:profiles,username,' . $profile->id,
@@ -167,8 +168,23 @@ class ProfileController extends Controller
             'points' => 'sometimes|integer|min:0',
         ]);
 
-        $profile->update($validated);
+        $validatedUser = $request->validate([
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'sometimes|string|min:8',
+            'role' => 'sometimes|in:user,admin',
+        ]);
+
+        $profile->update($validatedProfile);
+        $user->update($validatedUser);
 
         return response()->json($profile, 200);
     }
+
+    public function getAllProfiles()
+    {
+        //this should be paginated
+        $profiles = Profile::paginate(20);
+        return response()->json($profiles, 200);
+    }
+        
 }

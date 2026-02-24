@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            'email' => 'admin@recycling.com',
-            'password' => bcrypt('yawabicim'),
+            'email' => env('SEED_ADMIN_EMAIL', 'admin@recycling.com'),
+            'password' => bcrypt(env('SEED_ADMIN_PASSWORD', 'password')),
             'role' => 'admin',
         ]);
         User::factory()->create([
-            'email' => 'user@recycling.com',
-            'password' => bcrypt('yawabicim'),
+            'email' => env('SEED_USER_EMAIL', 'user@recycling.com'),
+            'password' => bcrypt(env('SEED_USER_PASSWORD', 'password')),
             'role' => 'user',
         ]);
         RecyclableItemCategory::create([

@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::post('/admin/logout', [AuthController::class, 'adminLogout']);
         Route::put('/admin/profile/{username}', [ProfileController::class, 'adminUpdate']);
+        Route::get('/admin/profiles', [ProfileController::class, 'getAllProfiles']);
 
         Route::get('/recyclable-items', [RecyclableItemController::class, 'index']);
         Route::get('/recyclable-items/{id}', [RecyclableItemController::class, 'show']);
