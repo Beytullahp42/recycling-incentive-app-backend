@@ -16,18 +16,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
+        User::firstOrCreate([
             'email' => env('SEED_ADMIN_EMAIL', 'admin@recycling.com'),
+        ], [
             'password' => bcrypt(env('SEED_ADMIN_PASSWORD', 'password')),
             'role' => 'admin',
         ]);
-        User::factory()->create([
+
+        User::firstOrCreate([
             'email' => env('SEED_USER_EMAIL', 'user@recycling.com'),
+        ], [
             'password' => bcrypt(env('SEED_USER_PASSWORD', 'password')),
             'role' => 'user',
         ]);
-        RecyclableItemCategory::create([
+
+        RecyclableItemCategory::firstOrCreate([
             'name' => 'Uncategorized',
+        ], [
             'value' => 100,
         ]);
     }

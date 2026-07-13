@@ -12,8 +12,13 @@ return new class extends Migration
      */
     public function up()
     {
+        if (! Schema::hasColumn('profiles', 'balance')) {
+            Schema::table('profiles', function (Blueprint $table) {
+                $table->unsignedBigInteger('balance')->default(0)->after('points');
+            });
+        }
+
         Schema::table('profiles', function (Blueprint $table) {
-            $table->unsignedBigInteger('balance')->default(0)->after('points');
             $table->unsignedBigInteger('points')->change();
         });
 
@@ -22,8 +27,10 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::table('profiles', function (Blueprint $table) {
-            $table->dropColumn('balance');
-        });
+        if (Schema::hasColumn('profiles', 'balance')) {
+            Schema::table('profiles', function (Blueprint $table) {
+                $table->dropColumn('balance');
+            });
+        }
     }
 };
