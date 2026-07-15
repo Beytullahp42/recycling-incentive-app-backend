@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-recycling_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recycling_password}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -21,7 +21,7 @@ services:
   backend:
     build:
       context: .
-      target: development
+      target: backend
     restart: unless-stopped
     environment:
       APP_NAME: ${BACKEND_APP_NAME:-Recycling Incentive API}
@@ -56,16 +56,29 @@ services:
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-password}
       SEED_USER_EMAIL: ${SEED_USER_EMAIL:-user@recycling.com}
       SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-password}
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
+    expose:
+      - "9000"
     volumes:
-      - .:/var/www/html
-      - backend_vendor:/var/www/html/vendor
+      - backend_storage:/var/www/html/storage
     depends_on:
       database:
         condition: service_healthy
+
+  backend-nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+      target: production
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_BIND_ADDRESS:-0.0.0.0}:${BACKEND_PORT:-8000}:80"
+    volumes:
+      - backend_storage:/var/www/html/storage:ro
+    depends_on:
+      backend:
+        condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "php -r \"exit(@file_get_contents('http://127.0.0.1:8000/api/ping') === false ? 1 : 0);\""]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/ping >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -73,19 +86,14 @@ services:
   admin-frontend:
     build:
       context: ../recycling-incentive-app-admin-frontend
-      target: development
+      target: production
+      args:
+        VITE_API_URL: ${ADMIN_VITE_API_URL:-http://localhost:8000}
     restart: unless-stopped
-    environment:
-      VITE_API_URL: ${ADMIN_VITE_API_URL:-http://localhost:8000}
-      CHOKIDAR_USEPOLLING: ${ADMIN_CHOKIDAR_USEPOLLING:-true}
-    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     ports:
-      - "${ADMIN_FRONTEND_PORT:-5173}:5173"
-    volumes:
-      - ../recycling-incentive-app-admin-frontend:/app
-      - admin_frontend_node_modules:/app/node_modules
+      - "${ADMIN_FRONTEND_BIND_ADDRESS:-0.0.0.0}:${ADMIN_FRONTEND_PORT:-5173}:80"
     depends_on:
-      backend:
+      backend-nginx:
         condition: service_healthy
 
   expo:
@@ -101,23 +109,22 @@ services:
       REACT_NATIVE_PACKAGER_HOSTNAME: ${EXPO_PACKAGER_HOSTNAME:-localhost}
       CHOKIDAR_USEPOLLING: ${EXPO_CHOKIDAR_USEPOLLING:-true}
       WATCHPACK_POLLING: ${EXPO_WATCHPACK_POLLING:-true}
-    command: ["npm", "run", "start", "--", "--host", "lan", "--clear"]
+    command: ["npm", "run", "start", "--", "--offline", "--go", "--clear"]
     ports:
-      - "${EXPO_METRO_PORT:-8081}:8081"
-      - "${EXPO_PORT_19000:-19000}:19000"
-      - "${EXPO_PORT_19001:-19001}:19001"
-      - "${EXPO_PORT_19002:-19002}:19002"
+      - "${EXPO_BIND_ADDRESS:-0.0.0.0}:${EXPO_METRO_PORT:-8081}:8081"
+      - "${EXPO_BIND_ADDRESS:-0.0.0.0}:${EXPO_PORT_19000:-19000}:19000"
+      - "${EXPO_BIND_ADDRESS:-0.0.0.0}:${EXPO_PORT_19001:-19001}:19001"
+      - "${EXPO_BIND_ADDRESS:-0.0.0.0}:${EXPO_PORT_19002:-19002}:19002"
     volumes:
       - ../recycling-incentive-app-expo:/app
       - expo_node_modules:/app/node_modules
     depends_on:
-      backend:
+      backend-nginx:
         condition: service_healthy
     stdin_open: true
     tty: true
 
 volumes:
   postgres_data:
-  backend_vendor:
-  admin_frontend_node_modules:
+  backend_storage:
   expo_node_modules:

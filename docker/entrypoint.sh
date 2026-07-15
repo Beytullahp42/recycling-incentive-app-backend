@@ -8,9 +8,18 @@ if [ ! -f vendor/autoload.php ]; then
 fi
 
 if [ -z "${APP_KEY:-}" ]; then
-    export APP_KEY="$(php artisan key:generate --show --no-interaction)"
+    export APP_KEY="$(php -r 'echo "base64:" . base64_encode(random_bytes(32));')"
     echo "Generated an ephemeral APP_KEY for this container. Set BACKEND_APP_KEY for a stable key."
 fi
+
+if [ "$(id -u)" = "0" ]; then
+    chown -R www-data:www-data storage bootstrap/cache
+fi
+
+php artisan config:clear --no-interaction
+php artisan route:clear --no-interaction
+php artisan view:clear --no-interaction
+php artisan event:clear --no-interaction
 
 if [ "${WAIT_FOR_DB:-true}" = "true" ] && [ "${DB_CONNECTION:-pgsql}" = "pgsql" ]; then
     php <<'PHP'
@@ -48,6 +57,10 @@ fi
 
 if [ "${RUN_SEEDERS:-false}" = "true" ]; then
     php artisan db:seed --force
+fi
+
+if [ "$(id -u)" = "0" ]; then
+    chown -R www-data:www-data storage bootstrap/cache
 fi
 
 exec "$@"

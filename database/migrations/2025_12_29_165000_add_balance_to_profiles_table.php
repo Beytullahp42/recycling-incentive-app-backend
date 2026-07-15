@@ -19,10 +19,10 @@ return new class extends Migration
         }
 
         Schema::table('profiles', function (Blueprint $table) {
-            $table->unsignedBigInteger('points')->change();
+            $table->unsignedBigInteger('points')->default(0)->change();
         });
 
-        DB::statement('UPDATE profiles SET balance = points');
+        DB::statement('UPDATE profiles SET balance = COALESCE(balance, points, 0)');
     }
 
     public function down()
