@@ -11,6 +11,7 @@ use App\Http\Controllers\RecyclableItemCategoryController;
 use App\Http\Controllers\RecyclingBinController;
 use App\Http\Controllers\RecyclingSessionController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\AdminDashboardController;
 
 
 Route::get('/ping', function () {
@@ -48,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/end-session', [TransactionController::class, 'endSession']);
 
     Route::middleware('isAdmin')->group(function () {
+        Route::get('/admin/dashboard', [AdminDashboardController::class, 'index']);
         Route::get('/admin/ping', function () {
             return response()->json(['message' => 'Pong']);
         });
