@@ -35,5 +35,10 @@ class DatabaseSeeder extends Seeder
         ], [
             'value' => 100,
         ]);
+
+ $this->call([
+            DemoSeeder::class,
+        ]);
+
     }
 }
